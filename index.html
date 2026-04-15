@@ -15,82 +15,111 @@
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background-color: var(--mcd-bg);
             margin: 0;
-            overflow: hidden;
             height: 100vh;
+            overflow: hidden;
             touch-action: manipulation;
         }
 
         .mcd-logo { height: 48px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
 
-        /* CHARGEMENT RAPIDE & FIABLE */
-        #update-loader {
-            position: fixed;
-            inset: 0;
-            background: linear-gradient(180deg, var(--mcd-green), #003322);
-            z-index: 9999;
+        header {
+            background: var(--mcd-green);
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .points-pill {
+            background: rgba(255,255,255,0.15);
+            border: 2px solid var(--mcd-gold);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-weight: 700;
+            color: var(--mcd-gold);
+        }
+
+        .sidebar { width: 180px; background: white; border-right: 1px solid #ddd; overflow-y: auto; }
+        .nav-button {
+            padding: 22px 15px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            color: white;
-            transition: transform 0.6s ease;
+            gap: 6px;
         }
-        .spin-m {
-            font-size: 100px;
-            color: var(--mcd-gold);
-            font-weight: 900;
-            animation: pulse 1.2s infinite ease-in-out;
-        }
-        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
-
-        .loader-bar {
-            width: 220px;
-            height: 4px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 2px;
-            overflow: hidden;
-            margin-top: 30px;
-        }
-        .loader-bar::after {
-            content: '';
-            display: block;
-            height: 100%;
-            width: 40%;
-            background: var(--mcd-gold);
-            animation: loading 1.5s infinite linear;
-        }
-        @keyframes loading {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(300%); }
-        }
-
-        /* Le reste du CSS (exactement comme ton script) */
-        header { background: var(--mcd-green); color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .points-pill { background: rgba(255,255,255,0.15); border: 2px solid var(--mcd-gold); padding: 8px 18px; border-radius: 50px; font-weight: 700; color: var(--mcd-gold); }
-        .sidebar { width: 180px; background: white; border-right: 1px solid #ddd; overflow-y: auto; }
-        .nav-button { padding: 22px 15px; text-align: center; border-bottom: 1px solid #f0f0f0; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; }
         .nav-button.active { background: #fff9e6; border-left: 8px solid var(--mcd-gold); }
         .nav-button img { width: 52px; height: 52px; object-fit: contain; }
+
         .main-layout { display: flex; height: calc(100vh - 170px); }
-        .grid { flex: 1; padding: 25px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px; background: white; }
-        .item-card { border: 1px solid #eee; border-radius: 18px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.25s; }
-        .item-card:hover { transform: translateY(-4px); border-color: var(--mcd-gold); }
+        .grid {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 20px;
+            background: white;
+        }
+
+        .item-card {
+            border: 1px solid #eee;
+            border-radius: 18px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .item-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--mcd-gold);
+            box-shadow: 0 10px 25px rgba(255,199,44,0.25);
+        }
         .item-card img { width: 100%; max-height: 165px; object-fit: contain; border-radius: 12px; }
         .item-card .name { font-weight: 700; margin: 12px 0 6px; min-height: 42px; }
         .item-card .price { color: var(--mcd-green); font-weight: 900; font-size: 1.35rem; }
-        footer { height: 110px; background: var(--mcd-green); position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; color: white; z-index: 1000; }
-        .checkout-btn { background: var(--mcd-gold); color: var(--mcd-green); padding: 18px 55px; border-radius: 50px; font-weight: 900; font-size: 1.35rem; border: none; cursor: pointer; }
+
+        footer {
+            height: 110px;
+            background: var(--mcd-green);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 25px;
+            color: white;
+            z-index: 1000;
+        }
+        .checkout-btn {
+            background: var(--mcd-gold);
+            color: var(--mcd-green);
+            padding: 18px 55px;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 1.35rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Modals */
+        #payment-modal, #cart-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
     </style>
 </head>
 <body>
-
-    <!-- CHARGEMENT RAPIDE -->
-    <div id="update-loader">
-        <div class="spin-m">M</div>
-        <div style="font-size:1.4rem; font-weight:700; margin:15px 0;">Chargement de la borne McDonald's...</div>
-        <p style="opacity:0.7;">Préparation des menus • Quelques secondes</p>
-        <div class="loader-bar"></div>
-    </div>
 
     <!-- HEADER -->
     <header>
@@ -109,6 +138,7 @@
             <div class="nav-button" onclick="updateView('mccafe', this)"><img src="https://www.mcdonalds.fr/documents/10191/26895315/Cafe.png"><span>McCafé</span></div>
             <div class="nav-button" onclick="updateView('promo', this)"><img src="https://www.mcdonalds.fr/documents/10191/26895315/SuperMario.png"><span>Promo</span></div>
         </nav>
+
         <main class="grid" id="product-grid"></main>
     </div>
 
@@ -120,30 +150,27 @@
         <button class="checkout-btn" onclick="pay()">PAYER • <span id="item-count">0</span> articles</button>
     </footer>
 
-    <!-- MODALS (identiques à ton script) -->
-    <div id="payment-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:10000; align-items:center; justify-content:center;">
-        <!-- ... même contenu que dans ton script ... -->
-        <div style="background:white; width:92%; max-width:420px; border-radius:20px; overflow:hidden;">
-            <div style="background:var(--mcd-green); color:white; padding:20px; text-align:center; font-size:1.4rem;">Paiement sécurisé</div>
-            <div style="padding:25px;">
-                <div style="text-align:center;">Total : <strong id="modal-total">0.00</strong> €</div>
-                <input type="text" id="card-number" placeholder="4242 4242 4242 4242" style="width:100%; padding:14px; margin:10px 0; border:2px solid #ddd; border-radius:12px;" oninput="formatCardNumber(this)">
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="expiry" placeholder="MM/AA" maxlength="5" style="flex:1; padding:14px; border:2px solid #ddd; border-radius:12px;" oninput="formatExpiry(this)">
-                    <input type="text" id="cvv" placeholder="CVV" maxlength="4" style="flex:1; padding:14px; border:2px solid #ddd; border-radius:12px;">
-                </div>
-                <button onclick="processPayment()" style="width:100%; margin-top:20px; background:var(--mcd-green); color:white; padding:18px; border:none; border-radius:50px; font-weight:900;">PAYER MAINTENANT</button>
-            </div>
+    <!-- Modals (paiement + panier) -->
+    <div id="payment-modal" style="display:none;">
+        <!-- Contenu du paiement (simplifié) -->
+        <div style="background:white; width:92%; max-width:420px; border-radius:20px; margin:auto; padding:20px;">
+            <h2 style="text-align:center;">Paiement sécurisé</h2>
+            <p>Total : <strong id="modal-total">0.00</strong> €</p>
+            <input type="text" id="card-number" placeholder="Numéro de carte" style="width:100%; padding:12px; margin:10px 0;" oninput="formatCardNumber(this)">
+            <button onclick="processPayment()" style="width:100%; padding:15px; background:var(--mcd-green); color:white; border:none; border-radius:50px; font-size:1.2rem;">PAYER</button>
         </div>
     </div>
 
     <script>
-        const products = [ /* même liste que dans ton dernier script */ 
+        const products = [
             { name: "Menu Super Mario Galaxy Le Film", cat: "menu", price: 12.90, img: "https://www.mcdonalds.fr/documents/10191/26895315/SuperMario.png" },
             { name: "Menu Big Mac™ Best Of", cat: "menu", price: 11.80, img: "https://www.mcdonalds.fr/documents/10191/26895315/Big+Mac.png" },
-            // ... (tous les produits que tu avais) ...
+            { name: "Menu McChicken™ Best Of", cat: "menu", price: 11.70, img: "https://www.mcdonalds.fr/documents/10191/26895315/McChicken.png" },
+            { name: "Menu Royal Cheese™ Best Of", cat: "menu", price: 12.10, img: "https://www.mcdonalds.fr/documents/10191/26895315/Royal_Cheese.png" },
+            { name: "Menu CBO™ Best Of", cat: "menu", price: 12.50, img: "https://www.mcdonalds.fr/documents/10191/26895315/CBO.png" },
             { name: "Big Mac™", cat: "burger", price: 6.20, img: "https://www.mcdonalds.fr/documents/10191/26895315/Big+Mac.png" },
             { name: "Double Cheeseburger", cat: "burger", price: 4.80, img: "https://www.mcdonalds.fr/documents/10191/26895315/Double_Cheese.png" },
+            { name: "McChicken™", cat: "burger", price: 5.70, img: "https://www.mcdonalds.fr/documents/10191/26895315/McChicken.png" },
             { name: "Frites Moyennes", cat: "side", price: 3.20, img: "https://www.mcdonalds.fr/documents/10191/26895315/Frites.png" },
             { name: "Coca-Cola Original", cat: "drink", price: 2.95, img: "https://www.mcdonalds.fr/documents/10191/26895315/Coca.png" },
             { name: "McFlurry™ Oreo", cat: "dessert", price: 3.90, img: "https://www.mcdonalds.fr/documents/10191/26895315/McFlurry.png" }
@@ -152,14 +179,10 @@
         let cart = [];
         let myPoints = 248;
 
-        // CHARGEMENT ULTRA FIABLE
-        window.addEventListener('load', () => {
-            const loader = document.getElementById('update-loader');
-            setTimeout(() => {
-                loader.style.transform = "translateY(-100%)";
-                loadGrid('menu');
-            }, 2500);   // exactement 2,5 secondes
-        });
+        // Chargement direct
+        window.onload = () => {
+            loadGrid('menu');
+        };
 
         function loadGrid(cat) {
             const container = document.getElementById('product-grid');
@@ -173,17 +196,49 @@
             `).join('');
         }
 
-        // Toutes les autres fonctions (updateView, addToCart, pay, etc.) restent exactement comme dans ton script
-        function updateView(cat, btn) { /* ... */ }
-        function addToCart(name, price) { /* ... */ }
-        function updateCartUI() { /* ... */ }
-        function showCart() { /* ... */ }
-        function pay() { /* ... */ }
-        function processPayment() { /* ... */ }
-        function formatCardNumber(input) { /* ... */ }
-        function formatExpiry(input) { /* ... */ }
+        function updateView(cat, btn) {
+            document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            loadGrid(cat);
+        }
 
-        console.log('%c✅ Borne McDo chargée – chargement rapide 2,5s', 'color:#FFC72C; font-size:16px; font-weight:900;');
+        function addToCart(name, price) {
+            const existing = cart.find(i => i.name === name);
+            if (existing) existing.qty++;
+            else cart.push({name, price, qty: 1});
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+            document.getElementById('sum').innerText = total.toFixed(2);
+            document.getElementById('item-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0);
+        }
+
+        function showCart() {
+            if (cart.length === 0) return alert("Panier vide !");
+            alert(cart.map(i => `${i.qty}x ${i.name}`).join("\n") + `\n\nTotal : ${cart.reduce((s,i)=>s + i.price*i.qty,0).toFixed(2)} €`);
+        }
+
+        function pay() {
+            if (cart.length === 0) return alert("Commande vide !");
+            const total = cart.reduce((s,i)=>s + i.price*i.qty,0);
+            document.getElementById('modal-total').innerText = total.toFixed(2);
+            document.getElementById('payment-modal').style.display = 'flex';
+        }
+
+        function processPayment() {
+            alert("✅ Paiement réussi ! Bon appétit 🍔");
+            cart = [];
+            updateCartUI();
+            document.getElementById('payment-modal').style.display = 'none';
+        }
+
+        function formatCardNumber(input) {
+            input.value = input.value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
+        }
+
+        console.log('%cBorne McDonald\'s prête - sans chargement', 'color:#FFC72C; font-size:16px;');
     </script>
 </body>
 </html>
