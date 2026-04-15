@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>McDonald's Digital Order</title>
+    <style>
+        /* --- DESIGN ET COULEURS --- */
+        :root {
+            --mcd-red: #DA291C;
+            --mcd-yellow: #FFC72C;
+            --mcd-black: #27251F;
+            --mcd-white: #FFFFFF;
+            --mcd-grey: #F5F5F5;
+            --shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--mcd-grey);
+            margin: 0;
+            padding-bottom: 100px;
+        }
+
+        header {
+            background: var(--mcd-white);
+            padding: 10px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            sticky: top;
+            z-index: 100;
+        }
+
+        .logo-m {
+            font-size: 40px;
+            font-weight: 900;
+            color: var(--mcd-red);
+            text-decoration: none;
+        }
+
+        /* --- NAVIGATION --- */
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px;
+            background: white;
+            overflow-x: auto;
+        }
+
+        .cat-btn {
+            padding: 12px 20px;
+            border: none;
+            background: var(--mcd-grey);
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .cat-btn.active, .cat-btn:hover {
+            background: var(--mcd-yellow);
+            color: var(--mcd-black);
+        }
+
+        /* --- GRILLE DE PRODUITS --- */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 30px 5%;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+            position: relative;
+        }
+
+        .card:hover { transform: translateY(-10px); }
+
+        .card-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .card-body { padding: 20px; }
+        .card-title { font-size: 1.2rem; font-weight: bold; margin: 0 0 10px; }
+        .card-desc { color: #777; font-size: 0.9rem; margin-bottom: 15px; height: 35px; }
+        
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price { font-size: 1.4rem; font-weight: 800; color: var(--mcd-red); }
+
+        .add-btn {
+            background: var(--mcd-yellow);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* --- PANIER ET PAIEMENT --- */
+        #cart-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--mcd-black);
+            color: white;
+            padding: 20px 5%;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        .pay-now-btn {
+            background: var(--mcd-red);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* --- MODALE PAIEMENT --- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .confirm-btn {
+            width: 100%;
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="#" class="logo-m">M</a>
+    <div style="font-weight: bold;">📍 Commande en ligne</div>
+</header>
+
+<div class="categories" id="cat-bar">
+    <button class="cat-btn active" onclick="filter('all')">Tous les produits</button>
+    <button class="cat-btn" onclick="filter('burger')">Burgers</button>
+    <button class="cat-btn" onclick="filter('side')">Frites & Accompagnements</button>
+    <button class="cat-btn" onclick="filter('dessert')">Desserts & Boissons</button>
+</div>
+
+<div class="menu-grid" id="menu-grid">
+    </div>
+
+<div id="cart-bar">
+    <div>Total: <span id="total-val">0.00</span>€</div>
+    <button class="pay-now-btn" onclick="openPayment()">Payer ma commande</button>
+</div>
+
+<div class="modal" id="payment-modal">
+    <div class="modal-content">
+        <h2 style="color: var(--mcd-red);">Paiement sécurisé</h2>
+        <p>Entrez vos informations pour valider</p>
+        
+        <input type="text" class="input-field" placeholder="Nom sur la carte">
+        <input type="text" class="input-field" placeholder="Numéro de carte (16 chiffres)">
+        <div style="display: flex; gap: 10px;">
+            <input type="text" class="input-field" placeholder="MM/YY">
+            <input type="text" class="input-field" placeholder="CVV">
+        </div>
+
+        <button class="confirm-btn" onclick="processPayment()">VALIDER LE PAIEMENT</button>
+        <button onclick="closePayment()" style="background:none; border:none; color:gray; cursor:pointer; margin-top:10px;">Annuler</button>
+    </div>
+</div>
+
+<script>
+    const products = [
+        { id: 1, name: "Big Mac™", cat: "burger", price: 5.40, desc: "Le légendaire avec sa sauce secrète.", img: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400" },
+        { id: 2, name: "Le CBO™", cat: "burger", price: 6.90, desc: "Poulet croustillant, bacon et oignons.", img: "https://images.unsplash.com/photo-1510629954389-c1e0da47d415?w=400" },
+        { id: 3, name: "Grandes Frites", cat: "side", price: 3.50, desc: "Pommes de terre sélectionnées, croustillantes.", img: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=400" },
+        { id: 4, name: "9 Chicken McNuggets™", cat: "side", price: 6.20, desc: "Tendre poulet préparé avec soin.", img: "https://images.unsplash.com/photo-1562967914-608f82629710?w=400" },
+        { id: 5, name: "McFlurry™ Oreo", cat: "dessert", price: 4.50, desc: "Glace au lait et éclats d'Oreo.", img: "https://images.unsplash.com/photo-1579954115545-a95591f28be0?w=400" },
+        { id: 6, name: "Coca-Cola (50cl)", cat: "dessert", price: 2.80, desc: "Rafraîchissement intense.", img: "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400" }
+    ];
+
+    let total = 0;
+
+    // Affiche les produits
+    function display(list) {
+        const grid = document.getElementById('menu-grid');
+        grid.innerHTML = list.map(p => `
+            <div class="card">
+                <img src="${p.img}" class="card-img">
+                <div class="card-body">
+                    <div class="card-title">${p.name}</div>
+                    <div class="card-desc">${p.desc}</div>
+                    <div class="price-row">
+                        <span class="price">${p.price.toFixed(2)}€</span>
+                        <button class="add-btn" onclick="addToCart(${p.price})">+</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Filtres
+    function filter(category) {
+        // Style bouton actif
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+
+        if(category === 'all') display(products);
+        else display(products.filter(p => p.cat === category));
+    }
+
+    // Logique Panier
+    function addToCart(price) {
+        total += price;
+        document.getElementById('total-val').innerText = total.toFixed(2);
+        document.getElementById('cart-bar').style.display = 'flex';
+    }
+
+    // Fenêtre Paiement
+    function openPayment() {
+        document.getElementById('payment-modal').style.display = 'flex';
+    }
+
+    function closePayment() {
+        document.getElementById('payment-modal').style.display = 'none';
+    }
+
+    function processPayment() {
+        const btn = event.target;
+        btn.innerText = "Vérification en cours...";
+        btn.disabled = true;
+
+        setTimeout(() => {
+            alert("🍔 COMMANDE VALIDÉE !\nMerci pour votre achat. Préparez vos papilles !");
+            total = 0;
+            document.getElementById('cart-bar').style.display = 'none';
+            closePayment();
+            btn.innerText = "VALIDER LE PAIEMENT";
+            btn.disabled = false;
+        }, 2500);
+    }
+
+    // Init au chargement
+    display(products);
+</script>
+
+</body>
+</html>
