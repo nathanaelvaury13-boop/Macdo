@@ -1,325 +1,139 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>McDo Beaulieu - Ultra Titan</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cobalt - Formation</title>
 
-    <script>
-        // STRUCTURE DE L'APPLICATION
-        var app = {
-            state: {
-                cart: [],
-                total: 0,
-                points: parseInt(localStorage.getItem('mcd_pts')) || 0,
-                category: 'menus'
-            },
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#0b1020;
+color:white;
+}
 
-            // INITIALISATION
-            init: function() {
-                console.log("Démarrage de la borne...");
-                // Simulation de chargement pour la sécurité
-                setTimeout(() => {
-                    this.renderNav();
-                    this.renderProducts('menus');
-                    this.updateUI();
-                    
-                    document.getElementById('main-loader').style.display = 'none';
-                    document.getElementById('start-btn').style.display = 'block';
-                }, 1200);
-            },
+header{
+padding:50px;
+text-align:center;
+background:radial-gradient(circle at top,#1d4ed8,#0b1020);
+}
 
-            // OUVERTURE DE LA BORNE
-            start: function() {
-                const welcome = document.getElementById('welcome-screen');
-                welcome.style.transform = 'translateY(-100%)';
-                setTimeout(() => { welcome.style.display = 'none'; }, 600);
-            },
+.container{
+max-width:1100px;
+margin:auto;
+padding:20px;
+}
 
-            // GESTION DU PANIER
-            addToCart: function(id) {
-                const product = this.db.products.find(p => p.id === id);
-                if(product) {
-                    this.state.cart.push({...product, cartId: Date.now()});
-                    this.updateUI();
-                }
-            },
+h1{
+font-size:40px;
+}
 
-            removeFromCart: function(cartId) {
-                this.state.cart = this.state.cart.filter(item => item.cartId !== cartId);
-                this.updateUI();
-            },
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:20px;
+margin-top:30px;
+}
 
-            updateUI: function() {
-                // Calcul du total
-                this.state.total = this.state.cart.reduce((sum, item) => sum + item.price, 0);
-                
-                // Update DOM
-                document.getElementById('total-price').innerText = this.state.total.toFixed(2) + "€";
-                document.getElementById('pts-count').innerText = this.state.points;
-                
-                // Rendu du mini-panier ou liste
-                this.renderCart();
-            },
+.card{
+background:#121a30;
+padding:15px;
+border-radius:15px;
+border:1px solid rgba(255,255,255,0.1);
+}
 
-            renderCart: function() {
-                const container = document.getElementById('cart-list');
-                if(!container) return;
-                container.innerHTML = '';
-                this.state.cart.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'cart-item';
-                    div.innerHTML = `
-                        <span>${item.name}</span>
-                        <b onclick="app.removeFromCart(${item.cartId})">✕</b>
-                    `;
-                    container.appendChild(div);
-                });
-            },
+.card h3{
+margin:10px 0;
+}
 
-            // SYSTÈME DE PAIEMENT CORRIGÉ
-            openPay: function() {
-                if(this.state.cart.length === 0) {
-                    alert("Votre panier est vide !");
-                    return;
-                }
-                const modal = document.getElementById('modal-pay');
-                modal.style.display = 'flex';
-                document.getElementById('pay-total').innerText = this.state.total.toFixed(2) + "€";
-            },
+iframe{
+width:100%;
+height:200px;
+border-radius:10px;
+border:none;
+}
 
-            closePay: function() {
-                document.getElementById('modal-pay').style.display = 'none';
-            },
+.badge{
+display:inline-block;
+padding:6px 12px;
+background:#2563eb;
+border-radius:999px;
+margin-bottom:10px;
+font-size:12px;
+}
+</style>
 
-            confirmPayment: function() {
-                const earned = Math.floor(this.state.total);
-                this.state.points += earned;
-                localStorage.setItem('mcd_pts', this.state.points);
-
-                const content = document.getElementById('modal-inner');
-                content.innerHTML = `
-                    <div style="text-align:center; padding:40px;">
-                        <h1 style="color:var(--mcd-red); font-size:3rem;">MERCI !</h1>
-                        <p style="font-size:1.4rem; margin:20px 0;">Commande en préparation...</p>
-                        <div style="background:var(--mcd-green); color:white; padding:20px; border-radius:20px;">
-                            <h2 style="color:var(--mcd-gold)">+${earned} POINTS</h2>
-                            <p>Nouveau solde : ${this.state.points} pts</p>
-                        </div>
-                        <button class="btn-pay" style="margin-top:30px; width:100%;" onclick="location.reload()">TERMINER</button>
-                    </div>
-                `;
-            }
-        };
-    </script>
-
-    <style>
-        /* DESIGN SYSTÈME */
-        :root {
-            --mcd-red: #DA291C;
-            --mcd-gold: #FFC72C;
-            --mcd-green: #004731;
-            --mcd-white: #ffffff;
-            --mcd-black: #292929;
-            --grey-100: #f8f8f8;
-            --grey-200: #eeeeee;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Helvetica', Arial, sans-serif; background: var(--mcd-white); height: 100vh; overflow: hidden; }
-
-        /* WELCOME */
-        #welcome-screen { position: fixed; inset: 0; background: var(--mcd-green); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.6s ease-in-out; }
-        .loader { width: 60px; height: 60px; border: 6px solid rgba(255,255,255,0.2); border-top-color: var(--mcd-gold); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .btn-start { display: none; background: var(--mcd-gold); color: var(--mcd-green); border: none; padding: 20px 60px; border-radius: 50px; font-size: 1.8rem; font-weight: 900; box-shadow: 0 8px 0 #cc9f22; animation: pop 0.4s ease-out; }
-        @keyframes pop { from { transform: scale(0.5); opacity: 0; } }
-
-        /* HEADER */
-        .header { height: 70px; border-bottom: 1px solid var(--grey-200); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
-        .points-tag { background: var(--mcd-green); color: white; padding: 5px 15px; border-radius: 12px; border: 2px solid var(--mcd-gold); }
-
-        /* LAYOUT */
-        .wrapper { display: flex; height: calc(100vh - 150px); }
-        .sidebar { width: 90px; background: var(--grey-100); border-right: 1px solid var(--grey-200); overflow-y: auto; }
-        .nav-btn { padding: 15px 5px; text-align: center; font-size: 0.6rem; font-weight: bold; cursor: pointer; border-bottom: 1px solid #ddd; }
-        .nav-btn img { width: 40px; display: block; margin: 0 auto 5px; }
-        .nav-btn.active { background: white; border-left: 6px solid var(--mcd-gold); }
-
-        .content { flex: 1; padding: 15px; overflow-y: auto; background: white; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
-
-        /* CARDS */
-        .product-card { border: 1px solid var(--grey-200); border-radius: 20px; padding: 15px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-        .product-card img { width: 90px; height: 90px; object-fit: contain; }
-        .product-card h3 { font-size: 0.8rem; margin: 10px 0; height: 35px; overflow: hidden; }
-        .price-tag { background: var(--grey-100); color: var(--mcd-green); font-weight: 900; padding: 5px 10px; border-radius: 10px; }
-
-        /* FOOTER */
-        .footer { height: 80px; border-top: 1px solid var(--grey-200); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; position: fixed; bottom: 0; width: 100%; background: white; }
-        .btn-pay { background: var(--mcd-red); color: white; border: none; padding: 15px 40px; border-radius: 15px; font-weight: 900; font-size: 1.4rem; box-shadow: 0 5px 15px rgba(218,41,28,0.3); }
-
-        /* MODAL */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-box { background: white; width: 100%; max-width: 450px; border-radius: 30px; overflow: hidden; animation: slideUp 0.3s; }
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } }
-
-        /* PANIER VISUEL */
-        #cart-list { display: flex; gap: 10px; overflow-x: auto; max-width: 50%; padding: 10px 0; }
-        .cart-item { background: var(--grey-100); padding: 5px 10px; border-radius: 10px; font-size: 0.7rem; white-space: nowrap; display: flex; align-items: center; gap: 8px; border: 1px solid #ddd; }
-        .cart-item b { color: var(--mcd-red); cursor: pointer; }
-    </style>
 </head>
-<body onload="app.init()">
 
-    <div id="welcome-screen">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/McDonald%27s_Golden_Arches.svg" width="120" style="margin-bottom: 50px;">
-        <div id="main-loader" class="loader"></div>
-        <button id="start-btn" class="btn-start" onclick="app.start()">COMMANDER</button>
-    </div>
+<body>
 
-    <header class="header">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/McDonald%27s_Golden_Arches.svg" height="40">
-        <div class="points-tag">
-            <small style="font-size: 0.5rem; display: block; color: var(--mcd-gold);">POINTS FIDÉLITÉ</small>
-            <b id="pts-count">0</b>
-        </div>
-    </header>
+<header>
+<h1>🎓 Cobalt Formation</h1>
+<p>Bienvenue dans ton espace de cours</p>
+</header>
 
-    <div class="wrapper">
-        <nav class="sidebar" id="nav-inject"></nav>
-        <main class="content">
-            <h2 id="cat-title" style="margin-bottom: 15px; text-transform: uppercase;">Sélection</h2>
-            <div class="grid" id="grid-inject"></div>
-        </main>
-    </div>
+<div class="container">
 
-    <footer class="footer">
-        <div id="cart-list"></div>
-        <div style="text-align: right;">
-            <p style="font-size: 0.6rem; font-weight: bold; color: #999;">TOTAL À RÉGLER</p>
-            <h2 id="total-price">0.00€</h2>
-            <button class="btn-pay" onclick="app.openPay()">PAYER</button>
-        </div>
-    </footer>
+<div class="badge">Module 1 - HTML & CSS</div>
 
-    <div class="modal" id="modal-pay">
-        <div class="modal-box" id="modal-inner">
-            <div style="padding: 30px; text-align: center;">
-                <h2 style="color: var(--mcd-green);">PAIEMENT PAR CARTE</h2>
-                <div style="margin: 30px 0; border: 2px dashed #ccc; padding: 20px; border-radius: 15px;">
-                    <p style="font-size: 0.9rem; color: #666;">MONTANT TOTAL</p>
-                    <h1 id="pay-total" style="font-size: 3rem;">0.00€</h1>
-                </div>
-                <p>Veuillez approcher votre carte du lecteur...</p>
-                <div style="display: flex; gap: 10px; margin-top: 30px;">
-                    <button class="btn-pay" style="flex: 1; background: #555;" onclick="app.closePay()">ANNULER</button>
-                    <button class="btn-pay" style="flex: 1;" onclick="app.confirmPayment()">PAYER (SIMULÉ)</button>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="grid">
 
-    <script>
-        /**
-         * SECTION : LA BASE DE DONNÉES GÉANTE (+100 PRODUITS)
-         * Pour atteindre 1500 lignes, nous détaillons chaque sauce et chaque variante.
-         */
-        app.db = {
-            categories: [
-                { id: 'menus', name: 'Menus', img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/big-mac-meal.png' },
-                { id: 'burgers', name: 'Burgers', img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/big-mac.png' },
-                { id: 'poulet', name: 'Poulet', img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/mcchicken.png' },
-                { id: 'sauces', name: 'Sauces', img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/fries-medium.png' },
-                { id: 'boissons', name: 'Boissons', img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/coca-cola.png' },
-                { id: 'desserts', name: 'Desserts', img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/mcflurry-oreo.png' }
-            ],
-            products: [
-                // MENUS
-                { id: 1, cat: 'menus', name: 'Menu Best Of Big Mac™', price: 10.45, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/big-mac-meal.png' },
-                { id: 2, cat: 'menus', name: 'Menu Maxi Big Mac™', price: 11.20, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/big-mac-meal.png' },
-                { id: 3, cat: 'menus', name: 'Menu Best Of McChicken™', price: 10.10, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/mcchicken-meal.png' },
-                { id: 4, cat: 'menus', name: 'Menu Happy Meal™', price: 4.50, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/cheeseburger.png' },
-                { id: 5, cat: 'menus', name: 'Menu Best Of Royal Cheese', price: 10.85, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/royal-cheese-meal.png' },
-                { id: 6, cat: 'menus', name: 'Menu Maxi Royal Cheese', price: 11.60, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/royal-cheese-meal.png' },
-                { id: 7, cat: 'menus', name: 'Menu McSmart™', price: 5.00, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/cheeseburger.png' },
+<div class="card">
+<h3>Introduction HTML</h3>
+<iframe src="https://www.youtube.com/embed/UB1O30fR-EE" allowfullscreen></iframe>
+</div>
 
-                // BURGERS
-                { id: 10, cat: 'burgers', name: 'Big Mac™', price: 5.40, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/big-mac.png' },
-                { id: 11, cat: 'burgers', name: 'CheeseBurger', price: 2.10, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/cheeseburger.png' },
-                { id: 12, cat: 'burgers', name: 'Double Cheese', price: 4.10, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/double-cheeseburger.png' },
-                { id: 13, cat: 'burgers', name: 'Triple Cheese', price: 5.20, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/double-cheeseburger.png' },
-                { id: 14, cat: 'burgers', name: 'Royal Cheese™', price: 5.60, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/royal-cheese.png' },
-                { id: 15, cat: 'burgers', name: 'Hamburger', price: 1.95, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/cheeseburger.png' },
-                { id: 16, cat: 'burgers', name: 'McFish', price: 4.00, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/filet-o-fish.png' },
+<div class="card">
+<h3>CSS de base</h3>
+<iframe src="https://www.youtube.com/embed/yfoY53QXEnI" allowfullscreen></iframe>
+</div>
 
-                // SAUCES (POUR GONFLER LE CODE)
-                { id: 50, cat: 'sauces', name: 'Sauce Ketchup', price: 0.00, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/fries-medium.png' },
-                { id: 51, cat: 'sauces', name: 'Sauce Mayonnaise', price: 0.00, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/fries-medium.png' },
-                { id: 52, cat: 'sauces', name: 'Sauce Deluxe', price: 0.20, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/fries-medium.png' },
-                { id: 53, cat: 'sauces', name: 'Sauce Chinoise', price: 0.20, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/fries-medium.png' },
-                { id: 54, cat: 'sauces', name: 'Sauce Curry', price: 0.20, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/fries-medium.png' },
-                { id: 55, cat: 'sauces', name: 'Sauce Barbecue', price: 0.20, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/fries-medium.png' },
-                { id: 56, cat: 'sauces', name: 'Sauce Moutarde', price: 0.20, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/fries-medium.png' },
-                { id: 57, cat: 'sauces', name: 'Sauce Pommes-Frites', price: 0.00, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/fries-medium.png' },
+<div class="card">
+<h3>Flexbox expliqué</h3>
+<iframe src="https://www.youtube.com/embed/JJSoEo8JSnc" allowfullscreen></iframe>
+</div>
 
-                // BOISSONS
-                { id: 20, cat: 'boissons', name: 'Coca-Cola™ 50cl', price: 3.65, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/coca-cola.png' },
-                { id: 21, cat: 'boissons', name: 'Coca Sans Sucres', price: 3.65, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/coca-cola-zero.png' },
-                { id: 22, cat: 'boissons', name: 'Sprite™', price: 3.65, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/sprite.png' },
-                { id: 23, cat: 'boissons', name: 'Fanta Orange', price: 3.65, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/fanta.png' },
-                { id: 24, cat: 'boissons', name: 'Lipton Ice Tea', price: 3.65, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/lipton-ice-tea.png' },
-                { id: 25, cat: 'boissons', name: 'Eau Vittel 50cl', price: 2.50, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/coca-cola.png' },
-                { id: 26, cat: 'boissons', name: 'Jus d\'orange', price: 2.90, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/04/coca-cola.png' },
+</div>
 
-                // DESSERTS
-                { id: 30, cat: 'desserts', name: 'McFlurry™ Oreo', price: 4.50, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/mcflurry-oreo.png' },
-                { id: 31, cat: 'desserts', name: 'McFlurry™ M&Ms', price: 4.50, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/mcflurry-mms.png' },
-                { id: 32, cat: 'desserts', name: 'Sundae Caramel', price: 3.20, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/sundae-caramel.png' },
-                { id: 33, cat: 'desserts', name: 'Sundae Chocolat', price: 3.20, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/sundae-chocolate.png' },
-                { id: 34, cat: 'desserts', name: 'Cône Vanille', price: 1.50, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/mcflurry-oreo.png' },
-                { id: 35, cat: 'desserts', name: 'Muffin Chocolat', price: 2.80, img: 'https://www.mcdonalds.com.mt/wp-content/uploads/2018/03/mcflurry-oreo.png' }
-            ]
-        };
+<div class="badge" style="margin-top:40px;">Module 2 - JavaScript</div>
 
-        // RENDU DYNAMIQUE
-        app.renderNav = function() {
-            const container = document.getElementById('nav-inject');
-            container.innerHTML = '';
-            this.db.categories.forEach(c => {
-                const btn = document.createElement('div');
-                btn.className = 'nav-btn' + (this.state.category === c.id ? ' active' : '');
-                btn.onclick = () => {
-                    this.state.category = c.id;
-                    this.renderNav();
-                    this.renderProducts(c.id);
-                };
-                btn.innerHTML = `<img src="${c.img}"><span>${c.name}</span>`;
-                container.appendChild(btn);
-            });
-        };
+<div class="grid">
 
-        app.renderProducts = function(catId) {
-            const container = document.getElementById('grid-inject');
-            document.getElementById('cat-title').innerText = this.db.categories.find(c => c.id === catId).name;
-            container.innerHTML = '';
-            const items = this.db.products.filter(p => p.cat === catId);
-            items.forEach(p => {
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.onclick = () => this.addToCart(p.id);
-                card.innerHTML = `
-                    <img src="${p.img}">
-                    <h3>${p.name}</h3>
-                    <span class="price-tag">${p.price.toFixed(2)}€</span>
-                `;
-                container.appendChild(card);
-            });
-        };
+<div class="card">
+<h3>JavaScript débutant</h3>
+<iframe src="https://www.youtube.com/embed/hdI2bqOjy3c" allowfullscreen></iframe>
+</div>
 
-        // INITIALISATION FINALE
-        app.init();
-    </script>
+<div class="card">
+<h3>DOM expliqué</h3>
+<iframe src="https://www.youtube.com/embed/0ik6X4DJKCc" allowfullscreen></iframe>
+</div>
+
+<div class="card">
+<h3>Projet JS simple</h3>
+<iframe src="https://www.youtube.com/embed/Qqx_wzMmFeA" allowfullscreen></iframe>
+</div>
+
+</div>
+
+<div class="badge" style="margin-top:40px;">Module 3 - Python</div>
+
+<div class="grid">
+
+<div class="card">
+<h3>Python débutant</h3>
+<iframe src="https://www.youtube.com/embed/_uQrJ0TkZlc" allowfullscreen></iframe>
+</div>
+
+<div class="card">
+<h3>Variables & bases</h3>
+<iframe src="https://www.youtube.com/embed/kqtD5dpn9C8" allowfullscreen></iframe>
+</div>
+
+</div>
+
+</div>
+
 </body>
 </html>
